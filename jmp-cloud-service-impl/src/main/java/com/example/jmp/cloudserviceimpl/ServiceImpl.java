@@ -6,23 +6,24 @@ import com.example.jmp.dto.User;
 import com.example.jmp.service.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
-
-import static java.util.List.of;
+import java.util.function.Predicate;
 
 public class ServiceImpl implements Service {
 
-    List<User> users;
+    private final List<User> users = new ArrayList<>();
+    private final List<Subscription> subscriptions = new ArrayList<>();
 
     @Override
-    public void subscribe(BankCard bankCard) {
-        new Subscription(bankCard.number, LocalDate.now());
+    public void subscribe(BankCard card) {
+        Subscription subscription = new Subscription(card.number, LocalDate.now());
+        subscriptions.add(subscription);
     }
 
     @Override
     public Subscription getSubscriptionByBankCardNumber(String number) {
-        List<Subscription> getSubscription = of();
-        return getSubscription.stream()
+        return subscriptions.stream()
                 .filter(subscription -> subscription.getBankcardNumber().equals(number))
                 .findFirst()
                 .orElseThrow(JMPException::new);
@@ -30,12 +31,13 @@ public class ServiceImpl implements Service {
 
     @Override
     public List<User> getAllUsers() {
-        return of();
+        return users;
     }
 
-    public void createUsers() {
-        User userOne = new User("John1", "Doe1", LocalDate.of(1990, 1, 1));
-        User userTwo = new User("John2", "Doe2", LocalDate.of(1991, 1, 1));
-        users = of(userOne, userTwo);
+    @Override
+    public List<Subscription> getAllSubscriptionsByCondition(Predicate<Subscription> predicate) {
+        return subscriptions.stream()
+                .filter(predicate)
+                .toList();
     }
 }
